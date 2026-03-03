@@ -6,7 +6,7 @@ services:
     build: .
     restart: unless-stopped
     volumes:
-      - ./public:/var/www/html/public
+      - loan_public:/var/www/html/public
     environment:
       APP_URL: ${APP_URL:-http://localhost:8080}
       APP_KEY: ${APP_KEY:?Set APP_KEY in Portainer env vars}
@@ -31,13 +31,15 @@ services:
       - internal
 
   nginx:
-    image: nginx:1.27-alpine
+    image: loan-nginx:latest
+    build:
+      context: .
+      dockerfile: conf/nginx.Dockerfile
     restart: unless-stopped
     ports:
       - "${NGINX_HTTP_PORT:-8080}:80"
     volumes:
-      - ./conf/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./public:/var/www/html/public:ro
+      - loan_public:/var/www/html/public:ro
     depends_on:
       loan:
         condition: service_started
@@ -109,3 +111,4 @@ networks:
 
 volumes:
   db_data:
+  loan_public:
